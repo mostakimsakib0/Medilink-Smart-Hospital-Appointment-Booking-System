@@ -319,7 +319,7 @@ body {
 .card {
 	background: var(--bg-card);
 	border-radius: 20px;
-	border: 1px solid rgba(148, 163, 184, 0.3);
+	border: 1px solid rgba(184, 159, 148, 0.3);
 	box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
 	overflow: hidden;
 }
@@ -339,7 +339,7 @@ body {
 }
 
 .chat-window {
-	height: 360px;
+	height: 800px;
 	overflow: auto;
 	padding: 20px 24px;
 	display: flex;

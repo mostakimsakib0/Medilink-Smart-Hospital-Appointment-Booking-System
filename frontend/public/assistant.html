@@ -27,7 +27,7 @@
     <section class="layout-grid">
       <article id="chat" class="card" aria-label="Symptom checker">
         <div class="card-header">
-          <h1>24/7 MediVirtuoso Assistant</h1>
+          <h1>24/7 MediLink Assistant</h1>
           <div class="hint">Describe symptoms, medication questions, or booking needs. We keep conversations medical-only for safety.</div>
         </div>
         <div id="chat-window" class="chat-window" aria-live="polite" aria-label="Chat conversation"></div>
@@ -39,18 +39,11 @@
       </article>
 
       <aside class="sidebar-stack" aria-label="Assistant sidebar">
-        <section id="suggestions" class="card hidden">
-          <div class="card-header">
-            <h3>Suggested Specialists</h3>
-            <div class="hint">Tap a card to open the full profile or book immediately.</div>
-          </div>
-          <div id="suggested-doctors" class="doctor-grid"></div>
-        </section>
 
         <section class="card quick-help">
           <div class="card-header">
             <h3>Need inspiration?</h3>
-            <div class="hint">Choose a vetted prompt to see how MediVirtuoso responds.</div>
+            <div class="hint">Choose a vetted prompt to see how MediLink responds.</div>
           </div>
           <div class="prompt-chips">
             <button type="button" data-prompt="I feel chest pressure when walking and mild shortness of breath.">Chest discomfort</button>
@@ -59,6 +52,15 @@
             <button type="button" data-prompt="My blood sugar is high despite medicine. Need advice.">Diabetes check</button>
           </div>
         </section>
+        <section id="suggestions" class="card hidden">
+          <div class="card-header">
+            <h3>Suggested Specialists</h3>
+            <div class="hint">Tap a card to open the full profile or book immediately.</div>
+          </div>
+          <div id="suggested-doctors" class="doctor-grid"></div>
+        </section>
+
+        
       </aside>
     </section>
   </main>

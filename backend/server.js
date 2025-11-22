@@ -170,7 +170,7 @@ async function buildLocalChatReply(message){
   });
   const db = await getDb();
   const rows = await db.all('SELECT * FROM doctors');
-  const ranked = rows
+  let ranked = rows
     .map(mapDoctorRow)
     .map(doc => {
       const loweredSpecialty = doc.specialty.toLowerCase();
@@ -198,6 +198,22 @@ async function buildLocalChatReply(message){
     })
     .filter(item => item.score > 0)
     .sort((a,b) => b.score - a.score || b.doc.rating - a.doc.rating);
+
+  // If the heuristic detected a clear specialty intent, prefer only doctors
+  // that match the detected specialist types (exact or close match). This
+  // narrows suggestions to the intended specialist rather than mixing
+  // multiple specialties in the response. If filtering yields no results,
+  // we fall back to the original ranked list.
+  if(specialtyIntentHits.length){
+    const desiredTargets = new Set(specialtyIntentHits.flatMap(h => h.targets).map(t => String(t||'').toLowerCase()));
+    const filtered = ranked.filter(item => {
+      const spec = String(item.doc.specialty||'').toLowerCase();
+      // Accept exact equality, or a containment match in either direction to
+      // tolerate small naming differences (e.g. 'cardiologist' vs 'cardiology').
+      return [...desiredTargets].some(d => spec === d || spec.includes(d) || d.includes(spec));
+    });
+    if(filtered.length) ranked = filtered;
+  }
 
   const suggestions = ranked.slice(0, 4).map(({ doc }) => ({
     id: doc.id,
