@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink — Register</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="auth-body">
+  <main class="auth-wrapper">
+    <section class="auth-card">
+      <a class="brand-link" href="index.html">MediLink</a>
+      <h1>Create your account</h1>
+      <p class="auth-subtitle">Register once to book appointments, chat with MediVirtuoso, and track visits.</p>
+      <div id="register-error" class="form-error" role="alert"></div>
+      <form id="register-form" class="auth-form" novalidate>
+        <label>Full name
+          <input type="text" id="reg-name" required autocomplete="name" />
+        </label>
+        <label>Email address
+          <input type="email" id="reg-email" required autocomplete="email" />
+        </label>
+        <label>Password
+          <input type="password" id="reg-password" required minlength="6" autocomplete="new-password" />
+        </label>
+        <label>Confirm password
+          <input type="password" id="reg-confirm" required minlength="6" autocomplete="new-password" />
+        </label>
+        <button type="submit" class="btn btn-primary full-width">Create account</button>
+      </form>
+      <p class="auth-meta">Already have an account? <a data-next-link data-base="login.html" href="login.html">Sign in</a></p>
+    </section>
+  </main>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

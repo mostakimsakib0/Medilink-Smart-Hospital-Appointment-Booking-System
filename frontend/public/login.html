@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink — Login</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="auth-body">
+  <main class="auth-wrapper">
+    <section class="auth-card">
+      <a class="brand-link" href="index.html">MediLink</a>
+      <h1>Welcome back</h1>
+      <p class="auth-subtitle">Sign in to manage your appointments, doctors, and chat history.</p>
+      <div id="login-error" class="form-error" role="alert"></div>
+      <form id="login-form" class="auth-form" novalidate>
+        <label>Email address
+          <input type="email" id="login-email" required autocomplete="email" />
+        </label>
+        <label>Password
+          <input type="password" id="login-password" required autocomplete="current-password" minlength="6" />
+        </label>
+        <button type="submit" class="btn btn-primary full-width">Continue</button>
+      </form>
+      <p class="auth-meta"><a href="#" class="link-muted" aria-disabled="true">Forgot password?</a> <span>(Coming soon)</span></p>
+      <p class="auth-meta">New to MediLink? <a data-next-link data-base="register.html" href="register.html">Create an account</a></p>
+    </section>
+  </main>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

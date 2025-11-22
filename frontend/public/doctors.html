@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink Doctors — Browse Specialists</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="app-shell" data-page="doctors">
+  <header class="site-header">
+    <div class="shell">
+      <a class="brand-mark" href="index.html">
+        <span class="brand-icon">✚</span>
+        MediLink Health
+      </a>
+      <nav class="primary-nav">
+        <a class="nav-link" href="assistant.html">Assistant</a>
+        <a class="nav-link" href="doctors.html">Doctors</a>
+        <a class="nav-link" href="bookings.html">Appointments</a>
+        <button id="btn-login" class="btn btn-ghost">Login / Register</button>
+        <div id="user-badge" class="user-badge hidden"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="card" aria-label="Doctors directory">
+      <div class="card-header">
+        <h1>Doctors From Our Partner Hospitals</h1>
+        <p class="hint">Search by specialty, hospital, language, or condition keywords. Filter to find the right fit.</p>
+        <div class="filters">
+          <input id="search-doctor" type="text" placeholder="Search doctor, specialty, hospital" aria-label="Search doctors" />
+          <select id="filter-specialty" aria-label="Filter by specialty">
+            <option value="">All Specialties</option>
+          </select>
+        </div>
+      </div>
+      <div id="doctor-list" class="doctor-grid" aria-label="Doctor list"></div>
+    </section>
+
+    <section id="profile" class="card hidden">
+      <div class="card-header">
+        <div class="row">
+          <h2 id="profile-name">Doctor Profile</h2>
+          <button id="profile-back" class="btn btn-ghost">Back to directory</button>
+        </div>
+      </div>
+      <div id="profile-body" class="profile-body"></div>
+      <div class="profile-actions">
+        <button id="profile-book" class="btn btn-primary">Book Appointment</button>
+        <a class="btn" href="assistant.html">Ask assistant</a>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="booking-modal" class="modal">
+    <form method="dialog" class="modal-card" id="booking-form">
+      <header class="modal-header">
+        <h3>Book Appointment</h3>
+        <button class="icon-btn" value="cancel" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <div id="booking-doctor"></div>
+        <label>Date
+          <input type="date" id="booking-date" required />
+        </label>
+        <label>Time
+          <input type="time" id="booking-time" required />
+        </label>
+        <label>Reason (optional)
+          <input type="text" id="booking-reason" placeholder="e.g., follow-up, chronic issue" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn btn-primary" id="booking-submit" value="default">Confirm Booking</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

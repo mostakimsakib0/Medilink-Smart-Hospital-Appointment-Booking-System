@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink Assistant — Smart Symptom Checker</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="app-shell" data-page="assistant">
+  <header class="site-header">
+    <div class="shell">
+      <a class="brand-mark" href="index.html">
+        <span class="brand-icon">✚</span>
+        MediLink Health
+      </a>
+      <nav class="primary-nav">
+        <a class="nav-link" href="assistant.html">Assistant</a>
+        <a class="nav-link" href="doctors.html">Doctors</a>
+        <a class="nav-link" href="bookings.html">Appointments</a>
+        <button id="btn-login" class="btn btn-ghost">Login / Register</button>
+        <div id="user-badge" class="user-badge hidden"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="layout-grid">
+      <article id="chat" class="card" aria-label="Symptom checker">
+        <div class="card-header">
+          <h1>24/7 MediVirtuoso Assistant</h1>
+          <div class="hint">Describe symptoms, medication questions, or booking needs. We keep conversations medical-only for safety.</div>
+        </div>
+        <div id="chat-window" class="chat-window" aria-live="polite" aria-label="Chat conversation"></div>
+        <form id="chat-form" class="chat-form" autocomplete="off">
+          <input id="chat-input" type="text" placeholder="Describe your symptoms or ask about appointments..." aria-label="Message" />
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+        <div class="guard-note">Emergency? Call your local hotline. MediLink is for non-emergent triage and booking support.</div>
+      </article>
+
+      <aside class="sidebar-stack" aria-label="Assistant sidebar">
+        <section id="suggestions" class="card hidden">
+          <div class="card-header">
+            <h3>Suggested Specialists</h3>
+            <div class="hint">Tap a card to open the full profile or book immediately.</div>
+          </div>
+          <div id="suggested-doctors" class="doctor-grid"></div>
+        </section>
+
+        <section class="card quick-help">
+          <div class="card-header">
+            <h3>Need inspiration?</h3>
+            <div class="hint">Choose a vetted prompt to see how MediVirtuoso responds.</div>
+          </div>
+          <div class="prompt-chips">
+            <button type="button" data-prompt="I feel chest pressure when walking and mild shortness of breath.">Chest discomfort</button>
+            <button type="button" data-prompt="My migraines are back every evening—recommend a neurologist.">Recurring migraines</button>
+            <button type="button" data-prompt="I am 9 weeks pregnant and need an OB follow-up slot.">Prenatal follow-up</button>
+            <button type="button" data-prompt="My blood sugar is high despite medicine. Need advice.">Diabetes check</button>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <dialog id="booking-modal" class="modal">
+    <form method="dialog" class="modal-card" id="booking-form">
+      <header class="modal-header">
+        <h3>Book Appointment</h3>
+        <button class="icon-btn" value="cancel" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <div id="booking-doctor"></div>
+        <label>Date
+          <input type="date" id="booking-date" required />
+        </label>
+        <label>Time
+          <input type="time" id="booking-time" required />
+        </label>
+        <label>Reason (optional)
+          <input type="text" id="booking-reason" placeholder="e.g., persistent cough, follow-up" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn btn-primary" id="booking-submit" value="default">Confirm Booking</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

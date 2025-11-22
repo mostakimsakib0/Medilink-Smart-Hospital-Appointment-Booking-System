@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink Appointments — Your Visits</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="app-shell" data-page="bookings">
+  <header class="site-header">
+    <div class="shell">
+      <a class="brand-mark" href="index.html">
+        <span class="brand-icon">✚</span>
+        MediLink Health
+      </a>
+      <nav class="primary-nav">
+        <a class="nav-link" href="assistant.html">Assistant</a>
+        <a class="nav-link" href="doctors.html">Doctors</a>
+        <a class="nav-link" href="bookings.html">Appointments</a>
+        <button id="btn-login" class="btn btn-ghost">Login / Register</button>
+        <div id="user-badge" class="user-badge hidden"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Patient hub</p>
+        <h1>All of your MediLink visits in one tidy place.</h1>
+        <p class="hero-summary">Track upcoming consultations, quickly rebook favorite doctors, and keep personal notes handy for the next visit.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="assistant.html">Ask the assistant</a>
+          <a class="btn btn-ghost" href="doctors.html">Find a new doctor</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="visual-card">
+          <h3>Stay prepared</h3>
+          <p>Your appointment cards highlight slot, doctor, and quick actions without leaving this page.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="bookings" class="card">
+      <div class="card-header">
+        <h2>Your Appointments</h2>
+        <div class="hint">Sign in to sync booked visits, follow-ups, and next steps.</div>
+      </div>
+      <div id="booking-empty" class="booking-empty">Sign in to see your appointments.</div>
+      <div id="booking-list" class="booking-list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <dialog id="booking-modal" class="modal">
+    <form method="dialog" class="modal-card" id="booking-form">
+      <header class="modal-header">
+        <h3>Book Appointment</h3>
+        <button class="icon-btn" value="cancel" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <div id="booking-doctor"></div>
+        <label>Date
+          <input type="date" id="booking-date" required />
+        </label>
+        <label>Time
+          <input type="time" id="booking-time" required />
+        </label>
+        <label>Reason (optional)
+          <input type="text" id="booking-reason" placeholder="e.g., medication adjustment" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn btn-primary" id="booking-submit" value="default">Confirm Booking</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink — Smart Hospital Chat & Booking</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="app-shell" data-page="home">
+  <header class="site-header">
+    <div class="shell">
+      <a class="brand-mark" href="index.html">
+        <span class="brand-icon">✚</span>
+        MediLink Health
+      </a>
+      <nav class="primary-nav">
+        <a class="nav-link" href="assistant.html">Assistant</a>
+        <a class="nav-link" href="doctors.html">Doctors</a>
+        <a class="nav-link" href="bookings.html">Appointments</a>
+        <button id="btn-login" class="btn btn-ghost">Login / Register</button>
+        <div id="user-badge" class="user-badge hidden"></div>
+      </nav>
+    </div>
+  </header>
+  <main class="page home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Smart hospital coordination</p>
+        <h1>One platform for chat triage, curated doctors, and bookings.</h1>
+        <p class="hero-summary">Move from question to appointment without friction. MediLink guides every new patient through symptoms, insights, and next steps.</p>
+        <div class="hero-actions">
+          <a id="hero-chat" class="btn btn-primary" href="assistant.html">Start chatting</a>
+          <a id="hero-book" class="btn btn-ghost" href="doctors.html">Find a doctor</a>
+        </div>
+        <dl class="hero-stats">
+          <div class="stat-card">
+            <strong>120+</strong>
+            <span>Partner specialists</span>
+          </div>
+          <div class="stat-card">
+            <strong>4.7/5</strong>
+            <span>Average rating</span>
+          </div>
+          <div class="stat-card">
+            <strong>&lt; 3 min</strong>
+            <span>Assistant response</span>
+          </div>
+          <div class="stat-card">
+            <strong>24/7</strong>
+            <span>Virtual triage</span>
+          </div>
+        </dl>
+      </div>
+      <div class="hero-visual">
+        <div class="visual-card">
+          <div class="status-pill">Live · MediVirtuoso secure proxy</div>
+          <h3>Symptom intake ready</h3>
+          <p>“Hi MediLink, I have light chest pressure and shortness of breath when I climb stairs.”</p>
+        </div>
+        <div class="visual-card">
+          <h3>Care coordination</h3>
+          <p>Pick from curated cardiology, pulmonology, and internal medicine slots—all synced with your login.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout-grid home-chat" aria-label="Try MediVirtuoso">
+      <article id="chat" class="card" aria-label="Chat assistant">
+        <div class="card-header">
+          <h2>Chat With MediVirtuoso</h2>
+          <div class="hint">Ask symptom questions, triage concerns, or request help booking a visit. Conversations stay on secure rails.</div>
+        </div>
+        <div id="chat-window" class="chat-window" aria-live="polite" aria-label="Chat transcript">
+          <div class="message msg-bot">
+            <div class="msg-bubble">Hi, I’m MediVirtuoso. Tell me what’s going on and I’ll guide you to the right doctor.</div>
+          </div>
+        </div>
+        <form id="chat-form" class="chat-form" autocomplete="off">
+          <input id="chat-input" type="text" placeholder="Describe your symptoms or booking need..." aria-label="Message" />
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+        <div class="guard-note">Emergency? Call your local hotline. MediLink assists with non-emergent care only.</div>
+      </article>
+
+      <aside class="sidebar-stack" aria-label="Chat shortcuts">
+        <section id="suggestions" class="card hidden">
+          <div class="card-header">
+            <h3>Suggested Specialists</h3>
+            <div class="hint">Personalized picks show up here after MediVirtuoso triage.</div>
+          </div>
+          <div id="suggested-doctors" class="doctor-grid"></div>
+        </section>
+
+        <section class="card quick-help">
+          <div class="card-header">
+            <h3>Popular prompts</h3>
+            <div class="hint">Tap to auto-fill the assistant with real-world scenarios.</div>
+          </div>
+          <div class="prompt-chips">
+            <button type="button" data-prompt="I have tightness in my chest after climbing stairs.">Chest tightness</button>
+            <button type="button" data-prompt="I need to book a pediatrician for my child’s recurring fever.">Pediatric fever</button>
+            <button type="button" data-prompt="I am experiencing dizziness and high blood pressure readings.">Hypertension check</button>
+            <button type="button" data-prompt="I need an OB follow-up next week, preferably female doctor.">OB follow-up</button>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="cta-grid" aria-label="Primary actions">
+      <article class="link-card">
+        <div class="card-body">
+          <p class="eyebrow">Symptom checker</p>
+          <h3>Chat with MediVirtuoso</h3>
+          <p>Describe symptoms, medications, or upcoming procedures and receive contextual, Bangla-friendly guidance.</p>
+        </div>
+        <a class="btn btn-primary full-width" href="assistant.html">Open assistant</a>
+      </article>
+      <article class="link-card">
+        <div class="card-body">
+          <p class="eyebrow">Doctor marketplace</p>
+          <h3>Browse specialists</h3>
+          <p>Filter by specialty, hospital, language, or conditions. Profiles highlight experience, education, and next available slots.</p>
+        </div>
+        <a class="btn btn-ghost full-width" href="doctors.html">Explore doctors</a>
+      </article>
+      <article class="link-card">
+        <div class="card-body">
+          <p class="eyebrow">Patient hub</p>
+          <h3>Manage appointments</h3>
+          <p>See upcoming visits, add reasons for follow-ups, and rebook favorite doctors in two taps.</p>
+        </div>
+        <a class="btn btn-ghost full-width" href="bookings.html">View appointments</a>
+      </article>
+    </section>
+
+    <section class="insights-grid" aria-label="Care highlights">
+      <article class="insight-card">
+        <small>Continuity</small>
+        <strong>Shared case notes</strong>
+        <p>Chat summaries stay with your profile so every doctor visits fully briefed.</p>
+      </article>
+      <article class="insight-card">
+        <small>Languages</small>
+        <strong>বাংলা · English</strong>
+        <p>We triage in Bangla or English and surface doctors fluent in your preference.</p>
+      </article>
+      <article class="insight-card">
+        <small>Bookings</small>
+        <strong>Secure + synced</strong>
+        <p>One click to confirm appointments, follow-ups automatically logged.</p>
+      </article>
+    </section>
+
+    <section class="care-steps" aria-label="How MediLink works">
+      <h2>The new patient journey</h2>
+      <div class="step-list">
+        <article class="step-card">
+          <span class="step-index">01</span>
+          <h3>Chat intake</h3>
+          <p>Tell the assistant how you feel—symptoms, context, and preferences—all kept within medical guardrails.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-index">02</span>
+          <h3>Doctor match</h3>
+          <p>Jump into the doctors page to compare specialties, ratings, and languages before booking.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-index">03</span>
+          <h3>Appointment hub</h3>
+          <p>Confirm slots, log reasons, and revisit summaries on the appointments dashboard.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="booking-modal" class="modal">
+    <form method="dialog" class="modal-card" id="booking-form">
+      <header class="modal-header">
+        <h3>Book Appointment</h3>
+        <button class="icon-btn" value="cancel" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <div id="booking-doctor"></div>
+        <label>Date
+          <input type="date" id="booking-date" required />
+        </label>
+        <label>Time
+          <input type="time" id="booking-time" required />
+        </label>
+        <label>Reason (optional)
+          <input type="text" id="booking-reason" placeholder="e.g., follow-up, chronic issue" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn btn-primary" id="booking-submit" value="default">Confirm Booking</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
