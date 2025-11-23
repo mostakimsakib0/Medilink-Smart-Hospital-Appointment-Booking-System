@@ -91,5 +91,21 @@
   </dialog>
 
   <script src="assets/js/app.js"></script>
+  <script>
+    // Auth guard: prevent access to assistant page for unauthenticated users.
+    (function(){
+      try{
+        var token = localStorage.getItem('ml_token');
+        if(!token){
+          var next = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+          // delay slightly to allow any pending UI (optional) then redirect
+          setTimeout(function(){ window.location.href = 'login.html?next='+next; }, 80);
+        }
+      }catch(e){ /* ignore */ }
+    })();
+  </script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="assets/js/react-bridge.js"></script>
 </body>
 </html>

@@ -88,7 +88,11 @@
 
   function persistSession(user, token){
     localStorage.setItem('ml_user', JSON.stringify(user));
-    if(token) localStorage.setItem('ml_token', token);
+    if(token){
+      localStorage.setItem('ml_token', token);
+      // set cookie for server-side static protection; cookie is session by default
+      document.cookie = `ml_token=${token}; Path=/; SameSite=Lax`;
+    }
   }
 
   function getCurrentUser(){
@@ -136,6 +140,8 @@
     logout.addEventListener('click', ()=>{
       localStorage.removeItem('ml_user');
       localStorage.removeItem('ml_token');
+      // remove cookie
+      document.cookie = 'ml_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
       banner.remove();
     });
     actions.append(toHome, logout);

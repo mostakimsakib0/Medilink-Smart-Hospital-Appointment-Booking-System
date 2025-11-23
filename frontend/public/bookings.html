@@ -71,12 +71,16 @@
         </label>
       </div>
       <footer class="modal-footer">
-        <button class="btn" value="cancel">Cancel</button>
-        <button class="btn btn-primary" id="booking-submit" value="default">Confirm Booking</button>
+  <button class="btn" value="cancel">Close</button>
+  <button id="booking-cancel-appointment" type="button" class="btn btn-ghost hidden">Cancel Appointment</button>
+  <button class="btn btn-primary" id="booking-submit" value="default">Confirm Booking</button>
       </footer>
     </form>
   </dialog>
 
   <script src="assets/js/app.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="assets/js/react-bridge.js"></script>
 </body>
 </html>

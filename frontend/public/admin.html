@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediLink Admin</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <main class="container admin-wrap">
+    <header class="admin-header">
+      <a class="brand-link" href="index.html">MediLink Admin</a>
+      <div id="admin-user">Not signed in</div>
+    </header>
+
+    <section class="layout-grid" style="margin-top:18px;">
+      <div>
+        <div class="card" style="padding:0;">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+              <h2 style="margin:0;padding:18px 24px 0;">Admin Dashboard</h2>
+              <div class="hint" style="padding:0 24px 18px;">Manage users, doctors and bookings</div>
+            </div>
+            <div style="padding:0 18px 0 0; display:flex; gap:8px; align-items:center;">
+              <button id="btn-new-doctor" class="btn btn-primary">Add doctor</button>
+            </div>
+          </div>
+
+          <div style="padding:0 18px 18px;">
+            <div class="tabbar" role="tablist" aria-label="Admin sections">
+              <button class="tab active" data-tab="stats">Overview</button>
+              <button class="tab" data-tab="users">Users</button>
+              <button class="tab" data-tab="doctors">Doctors</button>
+              <button class="tab" data-tab="bookings">Bookings</button>
+            </div>
+
+            <div class="tab-body">
+              <div id="tab-stats" class="tab-panel">Loading...</div>
+              <div id="tab-users" class="tab-panel hidden">
+                <div class="filters">
+                  <input id="user-filter" placeholder="Filter users by name or email" />
+                </div>
+                <div id="users-list">Loading...</div>
+              </div>
+              <div id="tab-doctors" class="tab-panel hidden">
+                <div class="filters">
+                  <input id="doctor-filter" placeholder="Filter doctors by name, specialty or hospital" />
+                </div>
+                <div id="doctors-list">Loading...</div>
+              </div>
+              <div id="tab-bookings" class="tab-panel hidden">
+                <div id="bookings-list">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card" style="padding:18px 20px;">
+          <h3 style="margin:0 0 8px;">Quick stats</h3>
+          <div id="stats">Loading...</div>
+        </div>
+
+        <div class="card" style="margin-top:16px;padding:18px 20px;">
+          <h3 style="margin:0 0 8px;">Quick actions</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+            <button id="btn-refresh" class="btn btn-ghost">Refresh</button>
+            <button id="btn-export-users" class="btn">Export users (CSV)</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <template id="user-row-tpl">
+    <div class="admin-row">
+      <div class="admin-col user-meta"></div>
+      <div class="admin-col user-actions"></div>
+    </div>
+  </template>
+
+  <template id="doctor-row-tpl">
+    <div class="admin-row">
+      <div class="admin-col doctor-meta"></div>
+      <div class="admin-col doctor-actions"></div>
+    </div>
+  </template>
+
+  <script src="assets/js/admin.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="assets/js/react-bridge.js"></script>
+</body>
+</html>

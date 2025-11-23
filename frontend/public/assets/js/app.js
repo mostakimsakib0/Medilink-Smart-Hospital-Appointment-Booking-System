@@ -9,6 +9,16 @@
     'pain','ache','fever','cough','cold','flu','injury','fracture','rash','eczema','itch','allergy','diarrhea','diarrhoea','vomit','vomiting','nausea','stomach','abdominal','gastric','chest','palpitations','breath','shortness of breath','asthma','lung','diabetes','sugar','thyroid','bp','blood pressure','pregnancy','period','menstrual','pcos','urinary','kidney','liver','anxiety','depression','sleep','insomnia','eye','ear','nose','throat','sore throat','tooth','dental','skin','derma','orthopedic','cardio','neuro','gastro','endocrine','psychiatry','migraine','headache','doctor','medicine','prescription','appointment','hospital','clinic','book'
   ];
 
+  // Bangla keywords (secondary guard). Backend still has richer Bangla handling.
+  MEDICAL_KEYWORDS.push(
+    'জ্বর','সর্দি','কাশি','গলা','ব্যথা','মাথা','বমি','ঝিমঝিম','হৃদপিণ্ড','বুকব্যথা','ডায়াবেটিস','চুলকানি','চর্ম','গর্ভ','মাসিক','মানসিক','চোখ','কান','পেট','হাঁপানি',
+    'ডাক্তার','চিকিৎসা','অ্যাপয়েন্টমেন্ট','বুকিং','ঔষধ','প্রেসক্রিপশন','হাসপাতাল','ক্লিনিক','রোগ','শ্বাস','শ্বাসকষ্ট'
+  );
+
+  // Allow Bangla input to bypass the English-only keyword guard and be
+  // forwarded to the backend, which contains Bangla handling heuristics.
+  const BANGLA_RANGE = /[\u0980-\u09FF]/;
+
   // No demo specialty inference; backend handles responses
 
   // DOM elements
@@ -40,11 +50,14 @@
   const bookingListEl = document.getElementById('booking-list');
   const bookingEmptyEl = document.getElementById('booking-empty');
   const bookingReason = document.getElementById('booking-reason');
+  const bookingCancelAppointmentBtn = document.getElementById('booking-cancel-appointment');
 
   let DOCTORS = [];
   let BOOKINGS = [];
   let selectedDoctor = null;
   let selectedProfile = null;
+  let editingBookingId = null;
+  let CHAT_MESSAGES = []; // {role:'user'|'bot', text: '...'} persisted to localStorage
 
   const WEEKDAY_MAP = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
 
@@ -64,11 +77,34 @@
     wrap.appendChild(bubble);
     chatWindow.appendChild(wrap);
     scrollChatToBottom();
+    try{
+      CHAT_MESSAGES.push({ role, text });
+      localStorage.setItem('ml_chat', JSON.stringify(CHAT_MESSAGES));
+    }catch(e){ /* ignore storage errors */ }
+  }
+
+  function renderStoredChat(messages){
+    if(!Array.isArray(messages) || !chatWindow) return;
+    chatWindow.innerHTML = '';
+    messages.forEach(m => {
+      const wrap = document.createElement('div');
+      wrap.className = `message ${m.role==='user'?'msg-user':'msg-bot'}`;
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = m.text;
+      wrap.appendChild(bubble);
+      chatWindow.appendChild(wrap);
+    });
+    scrollChatToBottom();
   }
 
   function outOfScope(userText){
-    const t = userText.toLowerCase();
-    return !MEDICAL_KEYWORDS.some(k => t.includes(k));
+  const t = userText.toLowerCase();
+  // If the user typed Bangla characters, defer scope checking to the
+  // backend (it has a richer Bangla symptom map). This prevents the
+  // frontend from showing the English-only fallback for Bangla input.
+  if(BANGLA_RANGE.test(t)) return false;
+  return !MEDICAL_KEYWORDS.some(k => t.includes(k));
   }
 
   // No triage heuristics in frontend; defer to backend if desired
@@ -207,7 +243,15 @@
   function ensureAuthThenBook(doc){
     selectedDoctor = doc;
     if(!currentUser()){
-      redirectToLogin();
+  // Persist pending booking intent in localStorage as a robust fallback
+  // (some browsers or flows may strip query/hash). Store both id and
+  // the full doctor object so we can restore immediately without
+  // waiting for the doctors list to load.
+  try{ localStorage.setItem('ml_pending_book', String(doc.id)); }catch(e){ /* ignore */ }
+  try{ localStorage.setItem('ml_pending_book_doc', JSON.stringify(doc)); }catch(e){ /* ignore */ }
+  // redirect to login and include a next query when possible
+  const next = `/doctors.html?book=${encodeURIComponent(doc.id)}`;
+  redirectToLogin(next);
       return;
     }
     openBookingModal(doc);
@@ -217,7 +261,26 @@
     if(!bookingModal || !bookingDoctor) return;
     bookingDoctor.textContent = `${doc.name} — ${doc.specialty} (${doc.hospital})`;
     prefillBookingSlot(doc);
+    if(typeof bookingModal.showModal === 'function'){
+      bookingModal.showModal();
+    } else {
+      // dialog unsupported: toggle fallback open class
+      bookingModal.classList.add('open');
+    }
+  }
+
+  function openBookingModalForEdit(booking){
+    // booking: full booking row from server
+    const doc = DOCTORS.find(d => d.id === (booking.doctor_id || booking.doctorId));
+    selectedDoctor = doc || null;
+    editingBookingId = booking.id;
+  if(bookingDoctor) bookingDoctor.textContent = `${doc ? doc.name : 'Doctor'} — ${doc ? doc.specialty : ''}`;
+    if(bookingDate) bookingDate.value = booking.date || '';
+    if(bookingTime) bookingTime.value = booking.time || '';
+    if(bookingReason) bookingReason.value = booking.reason || '';
+  if(bookingCancelAppointmentBtn) bookingCancelAppointmentBtn.classList.remove('hidden');
     if(typeof bookingModal.showModal === 'function') bookingModal.showModal();
+  else bookingModal.classList.add('open');
   }
 
   function prefillBookingSlot(doc){
@@ -367,7 +430,29 @@
         const targetDoc = doc || DOCTORS.find(d => d.id === doctorId);
         if(targetDoc) ensureAuthThenBook(targetDoc);
       });
-      actions.append(viewBtn, rebookBtn);
+      const rescheduleBtn = document.createElement('button');
+      rescheduleBtn.type = 'button';
+      rescheduleBtn.className = 'btn';
+      rescheduleBtn.textContent = 'Reschedule';
+      rescheduleBtn.addEventListener('click', ()=>{
+        // open modal in edit mode for this booking
+        openBookingModalForEdit(b);
+      });
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'btn btn-ghost';
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.addEventListener('click', async ()=>{
+        if(!confirm('Cancel this appointment?')) return;
+        const token = localStorage.getItem('ml_token');
+        try{
+          const r = await fetch(`/api/bookings/${b.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+          const data = await r.json();
+          if(!r.ok) throw new Error(data.error || 'Cancel failed');
+          await loadBookings();
+        }catch(err){ alert(err.message || String(err)); }
+      });
+      actions.append(viewBtn, rebookBtn, rescheduleBtn, cancelBtn);
       card.appendChild(actions);
 
       bookingListEl.appendChild(card);
@@ -386,15 +471,53 @@
       }
       const token = localStorage.getItem('ml_token');
       if(!token){ alert('Please login to book.'); return; }
-      if(!selectedDoctor){ alert('Select a doctor first.'); return; }
       try{
-        const r = await fetch('/api/bookings', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ doctorId: selectedDoctor.id, date, time, reason }) });
-        const data = await r.json();
-        if(!r.ok) throw new Error(data.error||'Booking failed');
-        alert(`Appointment confirmed with ${selectedDoctor.name} on ${date} at ${time}.`);
+        if(editingBookingId){
+          // Update existing booking
+          const r = await fetch(`/api/bookings/${editingBookingId}`, { method: 'PUT', headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ date, time, reason }) });
+          const data = await r.json();
+          if(!r.ok) throw new Error(data.error || 'Update failed');
+          alert(`Appointment updated for ${date} at ${time}.`);
+          editingBookingId = null;
+          if(bookingCancelAppointmentBtn) bookingCancelAppointmentBtn.classList.add('hidden');
+        } else {
+          if(!selectedDoctor){ alert('Select a doctor first.'); return; }
+          const r = await fetch('/api/bookings', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ doctorId: selectedDoctor.id, date, time, reason }) });
+          const data = await r.json();
+          if(!r.ok) throw new Error(data.error||'Booking failed');
+          alert(`Appointment confirmed with ${selectedDoctor.name} on ${date} at ${time}.`);
+        }
         await loadBookings();
         if(typeof bookingModal?.close === 'function') bookingModal.close();
       }catch(err){ alert(err.message||String(err)); }
+    });
+  }
+
+  // Modal cancel button for deleting the appointment when editing
+  if(bookingCancelAppointmentBtn){
+    bookingCancelAppointmentBtn.addEventListener('click', async ()=>{
+      if(!editingBookingId) return;
+      if(!confirm('Are you sure you want to cancel this appointment?')) return;
+      const token = localStorage.getItem('ml_token');
+      try{
+        const r = await fetch(`/api/bookings/${editingBookingId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await r.json();
+        if(!r.ok) throw new Error(data.error || 'Cancel failed');
+        editingBookingId = null;
+        if(bookingCancelAppointmentBtn) bookingCancelAppointmentBtn.classList.add('hidden');
+        if(typeof bookingModal?.close === 'function') bookingModal.close();
+        await loadBookings();
+      }catch(err){ alert(err.message||String(err)); }
+    });
+  }
+
+  // Reset editing state when modal is closed via dialog close
+  if(bookingModal){
+    bookingModal.addEventListener('close', ()=>{
+      editingBookingId = null;
+      if(bookingCancelAppointmentBtn) bookingCancelAppointmentBtn.classList.add('hidden');
+      // reset selectedDoctor to avoid accidental POST without doctor
+      // keep selectedDoctor if user opened modal from doctor profile
     });
   }
 
@@ -459,11 +582,18 @@
     });
   });
 
-  function redirectToLogin(){
-    const rawPath = window.location.pathname + window.location.search + window.location.hash;
+  // redirectToLogin optionally accepts a full absolute-path next target
+  // (for example: '/doctors.html?book=123'). If not provided it falls back to
+  // the current location like before.
+  function redirectToLogin(nextTarget){
     const fallback = '/index.html';
-    const safePath = rawPath.startsWith('/') ? rawPath : fallback;
-    const encoded = encodeURIComponent(safePath === '/' ? fallback : safePath);
+    let target = fallback;
+    if(nextTarget && String(nextTarget).startsWith('/')) target = nextTarget;
+    else {
+      const rawPath = window.location.pathname + window.location.search + window.location.hash;
+      target = rawPath.startsWith('/') ? rawPath : fallback;
+    }
+    const encoded = encodeURIComponent(target === '/' ? fallback : target);
     window.location.href = `login.html?next=${encoded}`;
   }
 
@@ -485,11 +615,22 @@
       const placeholder = chatWindow.lastElementChild?.querySelector('.msg-bubble');
 
       try{
+        const token = localStorage.getItem('ml_token');
+        const headers = { 'Content-Type':'application/json' };
+        if(token) headers['Authorization'] = `Bearer ${token}`;
         const r = await fetch(CONFIG.proxyUrl, {
-          method:'POST', headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ message: text })
+          method:'POST', headers, body: JSON.stringify({ message: text })
         });
         if(!r.ok){
+          // If the server returns 401, the assistant requires authentication.
+          if(r.status === 401){
+            // show a helpful bot message and redirect to login so the user can sign in
+            if(placeholder) placeholder.textContent = 'Please sign in to use the assistant. Redirecting to login...';
+            // persist the attempted user message so it isn't lost after login
+            try{ localStorage.setItem('ml_chat_draft', text); }catch(e){}
+            setTimeout(()=> redirectToLogin(window.location.pathname + window.location.search), 900);
+            return;
+          }
           const errTxt = await r.text().catch(()=> '');
           throw new Error(`Proxy error: ${r.status} ${errTxt}`);
         }
@@ -549,6 +690,81 @@
       updateUserBadge();
       renderBookings();
       loadBookings();
+      // restore chat history (if any)
+      try{
+        const raw = localStorage.getItem('ml_chat');
+        if(raw){
+          CHAT_MESSAGES = JSON.parse(raw) || [];
+          renderStoredChat(CHAT_MESSAGES);
+        }
+      }catch(e){ /* ignore parse errors */ }
+
+      // restore an unsent chat draft after returning from login (if present)
+      try{
+        const draft = localStorage.getItem('ml_chat_draft');
+        if(draft && chatInput){ chatInput.value = draft; localStorage.removeItem('ml_chat_draft'); }
+      }catch(e){}
+
+      // On return from login we may have a `book` query (e.g. /doctors.html?book=ID)
+      // or a hash like #doctor-<id> — also consult `ml_pending_book` stored
+      // before redirect as a robust fallback in case the next param was lost.
+      try{
+        // Highest priority: full doctor object stored before redirect
+        const rawDoc = localStorage.getItem('ml_pending_book_doc');
+        // Debug banner to aid testing
+        let debugBanner = null;
+        try{
+          debugBanner = document.createElement('div');
+          debugBanner.id = 'ml-debug-banner';
+          debugBanner.style.cssText = 'position:fixed;bottom:8px;left:8px;padding:6px 8px;background:rgba(0,0,0,0.7);color:#fff;border-radius:6px;font-size:12px;z-index:9999;display:none;';
+          document.body.appendChild(debugBanner);
+        }catch(e){}
+        if(rawDoc){
+          try{
+            const parsed = JSON.parse(rawDoc);
+            if(parsed && parsed.id){
+              // open booking modal using stored object
+              openBookingModal(parsed);
+              localStorage.removeItem('ml_pending_book_doc');
+              localStorage.removeItem('ml_pending_book');
+              if(debugBanner){ debugBanner.textContent = `Restored booking for ${parsed.name} (from ml_pending_book_doc)`; debugBanner.style.display = 'block'; }
+              return;
+            }
+          }catch(e){ /* ignore parse error */ }
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        let bookId = params.get('book');
+        if(!bookId){
+          bookId = localStorage.getItem('ml_pending_book');
+        }
+    if(bookId){
+          const doc = DOCTORS.find(d => String(d.id) === String(bookId));
+          if(doc) {
+            openBookingModal(doc);
+            try{ localStorage.removeItem('ml_pending_book'); }catch(e){}
+      if(debugBanner){ debugBanner.textContent = `Restored booking for ${doc.name} (from bookId)`; debugBanner.style.display = 'block'; }
+          }
+        } else if(window.location.hash){
+          const m = window.location.hash.match(/^#doctor-(\d+)$/);
+          if(m){
+            const doc = DOCTORS.find(d => String(d.id) === m[1]);
+            if(doc) showProfile(doc);
+          }
+        }
+      }catch(e){ /* ignore URL issues */ }
+
+      // Dialog fallback: if the browser doesn't support showModal, ensure
+      // the booking modal can still be shown by toggling a visible class.
+      if(bookingModal && typeof bookingModal.showModal !== 'function'){
+        bookingModal.classList.add('dialog-fallback');
+        // ensure close buttons inside dialog will hide the element
+        bookingModal.addEventListener('click', (ev) => {
+          if(ev.target && (ev.target.matches('[value="cancel"]') || ev.target.closest('.icon-btn'))){
+            bookingModal.classList.remove('open');
+          }
+        });
+      }
     }catch(err){
       console.error('Failed to load doctors', err);
     }
