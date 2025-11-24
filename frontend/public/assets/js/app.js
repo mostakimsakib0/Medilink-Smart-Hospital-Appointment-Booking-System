@@ -61,6 +61,11 @@
 
   const WEEKDAY_MAP = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
 
+  function safeNumber(v, fallback = 0){
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
   // --- Utilities ---
   function scrollChatToBottom(){
     if(!chatWindow) return;
@@ -137,9 +142,9 @@
       meta.textContent = `${d.specialty} • ${d.hospital}`;
       const tags = document.createElement('div');
       tags.innerHTML = `
-        <span class="tag">⭐ ${d.rating.toFixed(1)}</span>
-        <span class="tag">${d.experienceYears} yrs</span>
-        <span class="tag">Next: ${d.nextAvailable}</span>
+        <span class="tag">⭐ ${safeNumber(d.rating).toFixed(1)}</span>
+        <span class="tag">${safeNumber(d.experienceYears)} yrs</span>
+        <span class="tag">Next: ${d.nextAvailable || 'Soon'}</span>
       `;
       const actions = document.createElement('div');
       actions.className = 'actions';
@@ -171,7 +176,7 @@
           <h4 class="doc-name">${doc.name}</h4>
           <div class="doc-meta">${doc.specialty} • ${doc.hospital}</div>
           <div class="doc-tags">
-            <span class="tag">⭐ ${doc.rating.toFixed(1)}</span>
+            <span class="tag">⭐ ${safeNumber(doc.rating).toFixed(1)}</span>
             <span class="tag">Next: ${doc.nextAvailable || 'Ask'}</span>
           </div>
         </div>`;

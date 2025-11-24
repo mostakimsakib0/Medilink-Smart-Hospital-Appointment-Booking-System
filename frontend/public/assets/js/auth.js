@@ -40,7 +40,9 @@
         const data = await resp.json();
         if(!resp.ok) throw new Error(data.error || 'Login failed');
         persistSession(data.user, data.token);
-        window.location.href = nextTarget;
+        console.debug('login success, nextTarget=', nextTarget, 'user=', data.user && data.user.email);
+        // Ensure storage/cookie settle, then replace location to avoid back-button loops
+        setTimeout(() => window.location.replace(nextTarget || '/assistant.html'), 120);
       }catch(err){
         setError(loginError, err.message || 'Login failed');
       }finally{
@@ -72,7 +74,8 @@
         const data = await resp.json();
         if(!resp.ok) throw new Error(data.error || 'Registration failed');
         persistSession(data.user, data.token);
-        window.location.href = nextTarget;
+        console.debug('registration success, nextTarget=', nextTarget, 'user=', data.user && data.user.email);
+        setTimeout(() => window.location.replace(nextTarget || '/assistant.html'), 120);
       }catch(err){
         setError(registerError, err.message || 'Registration failed');
       }finally{
@@ -83,15 +86,22 @@
 
   function resolveNext(){
     if(nextParam && nextParam.startsWith('/')) return nextParam;
-    return '/index.html';
+    // Default to assistant page after login for protected flows
+    return '/assistant.html';
   }
 
   function persistSession(user, token){
     localStorage.setItem('ml_user', JSON.stringify(user));
     if(token){
       localStorage.setItem('ml_token', token);
-      // set cookie for server-side static protection; cookie is session by default
-      document.cookie = `ml_token=${token}; Path=/; SameSite=Lax`;
+      // set cookie for server-side static protection; make it persistent for 7 days
+      try{
+        var maxAge = 60*60*24*7; // 7 days
+        document.cookie = `ml_token=${token}; Path=/; SameSite=Lax; Max-Age=${maxAge}`;
+      }catch(e){
+        // fallback to session cookie
+        document.cookie = `ml_token=${token}; Path=/; SameSite=Lax`;
+      }
     }
   }
 
@@ -130,7 +140,7 @@
     const actions = document.createElement('div');
     actions.className = 'auth-session-actions';
     const toHome = document.createElement('a');
-    toHome.href = nextTarget;
+    toHome.href = nextTarget || '/assistant.html';
     toHome.className = 'btn btn-primary';
     toHome.textContent = 'Continue';
     const logout = document.createElement('button');

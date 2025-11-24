@@ -3,7 +3,7 @@ const path = require('path');
 
 function initDb(){
 	return new Promise((resolve, reject) => {
-		const dbPath = path.resolve(__dirname, 'data.sqlite');
+		const dbPath = path.resolve(__dirname, 'app.db');
 		const db = new sqlite3.Database(dbPath, (err) => {
 			if(err) return reject(err);
 

@@ -87,6 +87,6 @@ If the exact endpoint path differs, point `MEDIVIRTUOSO_URL` to that path.
 ## Notes
 
 - The booking flow is simulated for now (alert confirmation).
-- Auth and bookings persist in a local SQLite DB at `backend/data/app.db`.
+- Auth and bookings persist in a local SQLite DB at `backend/data.sqlite`.
 - Doctors are seeded from `frontend/public/data/doctors.json` into the DB on first run.
 - Logged-in users now see a "Your Appointments" card on the home page that lists every booking returned by `/api/bookings`, with quick actions to revisit the doctor profile or book a follow-up slot.

@@ -287,11 +287,13 @@ process.on('unhandledRejection', (err) => {
 // Protect certain static assets before serving static files.
 // - Admin routes require is_admin == true
 // - Assistant route requires a valid authenticated user (any non-empty user row)
+// Protect only admin static assets server-side. Assistant routes are
+// intentionally left to the client-side guard so localStorage-based
+// sessions or edge cases don't cause double-redirects.
 app.use(async (req, res, next) => {
   const p = req.path || '';
   const shouldProtectAdmin = p === '/admin.html' || p === '/admin' || p.startsWith('/assets/js/admin') || p.startsWith('/admin/');
-  const shouldProtectAuth = p === '/assistant.html' || p === '/assistant' || p.startsWith('/assistant/');
-  if(!shouldProtectAdmin && !shouldProtectAuth) return next();
+  if(!shouldProtectAdmin) return next();
 
   // Extract token from Authorization header or cookie
   const header = req.headers['authorization'] || '';
@@ -312,23 +314,9 @@ app.use(async (req, res, next) => {
   try{
     const payload = jwt.verify(token, JWT_SECRET);
     const db = await getDb();
-
     // For admin-protected routes require is_admin
-    if(shouldProtectAdmin){
-      const row = await db.get('SELECT is_admin FROM users WHERE id = ?', [payload.uid]);
-      if(!row || !row.is_admin) return res.status(403).send('Forbidden');
-      return next();
-    }
-
-    // For general auth-protected routes (assistant) ensure the user exists
-    if(shouldProtectAuth){
-      const row = await db.get('SELECT id,name,email,is_admin FROM users WHERE id = ?', [payload.uid]);
-      if(!row) return redirectToLogin();
-      // attach a lightweight user to the request for downstream handlers if needed
-      req.user = { id: row.id, name: row.name, email: row.email, is_admin: !!row.is_admin };
-      return next();
-    }
-
+    const row = await db.get('SELECT is_admin FROM users WHERE id = ?', [payload.uid]);
+    if(!row || !row.is_admin) return res.status(403).send('Forbidden');
     return next();
   }catch(err){
     return redirectToLogin();

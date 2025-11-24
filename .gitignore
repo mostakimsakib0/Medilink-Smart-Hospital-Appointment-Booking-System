@@ -1,5 +1,5 @@
 backend/data/*.db*
 
 # Ignore SQLite DB created during development
-backend/data.sqlite
-backend/data.sqlite*
+backend/app.db
+backend/app.db*
