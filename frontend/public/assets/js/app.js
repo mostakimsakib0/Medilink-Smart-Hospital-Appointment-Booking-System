@@ -27,6 +27,7 @@
   const chatInput = document.getElementById('chat-input');
   const chatSection = document.getElementById('chat');
   const btnLogin = document.getElementById('btn-login');
+  const btnAdmin = document.getElementById('btn-admin');
   const heroBookBtn = document.getElementById('hero-book');
   const heroChatBtn = document.getElementById('hero-chat');
   const userBadge = document.getElementById('user-badge');
@@ -545,9 +546,18 @@
       userBadge.textContent = `${u.name} · ${u.email}`;
       userBadge.classList.remove('hidden');
       btnLogin.textContent = 'Logout';
+      // Show admin button only for admin users
+      if(btnAdmin){
+        if(u.is_admin || u.isAdmin || u.isAdministrator){
+          btnAdmin.classList.remove('hidden');
+        } else {
+          btnAdmin.classList.add('hidden');
+        }
+      }
     } else {
       userBadge.classList.add('hidden');
       btnLogin.textContent = 'Login / Register';
+      if(btnAdmin) btnAdmin.classList.add('hidden');
     }
   }
 
