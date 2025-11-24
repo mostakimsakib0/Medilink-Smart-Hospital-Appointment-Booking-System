@@ -1,5 +1,4 @@
 backend/data/*.db*
 
 # Ignore SQLite DB created during development
-backend/app.db
-backend/app.db*
+# (backend/app.db is tracked on user request)
