@@ -67,6 +67,24 @@
     return Number.isFinite(n) ? n : fallback;
   }
 
+  // Fallback doctor shown when no specialist matches a condition
+  function getGeneralPhysician(){
+    return {
+      id: 'gp-1',
+      name: 'General Physician',
+      specialty: 'General Physician',
+      hospital: 'Any Hospital',
+      location: 'Nearby',
+      languages: ['Bangla','English'],
+      rating: 4.1,
+      experienceYears: 5,
+      nextAvailable: 'Soon',
+      education: ['MBBS'],
+      bio: 'Primary care physician for common ailments and initial assessment.',
+      conditions: []
+    };
+  }
+
   // --- Utilities ---
   function scrollChatToBottom(){
     if(!chatWindow) return;
@@ -113,6 +131,11 @@
   return !MEDICAL_KEYWORDS.some(k => t.includes(k));
   }
 
+  function isMedicalText(text){
+    if(!text) return false;
+    try{ return !outOfScope(String(text)); }catch(e){ return false; }
+  }
+
   // No triage heuristics in frontend; defer to backend if desired
 
   function filterDoctors(query, specialty){
@@ -126,6 +149,20 @@
 
   function renderDoctors(list, target){
     if(!target) return;
+    // If there are no matching doctors for a search/condition:
+    // - show a General Physician fallback only when the user's query
+    //   appears medical (e.g., contains symptom/condition keywords);
+    // - otherwise show a no-results message so arbitrary text doesn't
+    //   map to a GP suggestion.
+    if(!Array.isArray(list) || list.length === 0){
+      const q = (searchDoctorEl?.value || '').trim();
+      if(isMedicalText(q)){
+        list = [ getGeneralPhysician() ];
+      } else {
+        target.innerHTML = '<div class="empty">No doctors found.</div>';
+        return;
+      }
+    }
     target.innerHTML = '';
     list.forEach(d => {
       const card = document.createElement('div');
@@ -167,6 +204,17 @@
 
   function renderSuggestedDoctors(list){
     if(!suggestionsSection || !suggestedDoctorsEl) return;
+    // If suggestions are empty, only surface a General Physician when
+    // the user's last assistant message or draft looks medical.
+    if(!Array.isArray(list) || list.length === 0){
+      const lastAttempt = localStorage.getItem('ml_chat_draft') || chatInput?.value || (CHAT_MESSAGES.length ? CHAT_MESSAGES[CHAT_MESSAGES.length-1]?.text : '');
+      if(isMedicalText(lastAttempt)){
+        list = [ getGeneralPhysician() ];
+      } else {
+        suggestionsSection.classList.add('hidden');
+        return;
+      }
+    }
     suggestionsSection.classList.toggle('hidden', !list.length);
     suggestedDoctorsEl.innerHTML = '';
     list.forEach(doc => {
