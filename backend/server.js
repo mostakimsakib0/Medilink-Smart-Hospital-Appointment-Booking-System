@@ -499,6 +499,17 @@ app.post('/api/admin/users/:id/toggle-admin', authMiddleware, adminMiddleware, a
   }catch(err){ res.status(500).json({ error: 'Failed', details: String(err) }); }
 });
 
+app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res)=>{
+  try{
+    const db = await getDb();
+    const id = req.params.id;
+    const row = await db.get('SELECT id FROM users WHERE id = ?', [id]);
+    if(!row) return res.status(404).json({ error: 'User not found' });
+    await db.run('DELETE FROM users WHERE id = ?', [id]);
+    res.json({ ok: true });
+  }catch(err){ res.status(500).json({ error: 'Failed', details: String(err) }); }
+});
+
 app.get('/api/admin/doctors', authMiddleware, adminMiddleware, async (req, res)=>{
   try{
     const db = await getDb();
@@ -518,6 +529,31 @@ app.post('/api/admin/doctors', authMiddleware, adminMiddleware, async (req, res)
       d.id, d.name, d.specialty, d.hospital||'', JSON.stringify(d.languages||[]), d.experienceYears||0, d.rating||0, d.nextAvailable||'', JSON.stringify(d.education||[]), d.bio||'', d.location||'', JSON.stringify(d.conditions||[])
     ]);
     res.json({ ok: true });
+  }catch(err){ res.status(500).json({ error: 'Failed', details: String(err) }); }
+});
+
+app.put('/api/admin/doctors/:id', authMiddleware, adminMiddleware, async (req, res)=>{
+  try{
+    const db = await getDb();
+    const id = req.params.id;
+    const d = req.body || {};
+    const row = await db.get('SELECT id FROM doctors WHERE id = ?', [id]);
+    if(!row) return res.status(404).json({ error: 'Doctor not found' });
+    const updates = [];
+    const values = [];
+    if(d.name){ updates.push('name = ?'); values.push(d.name); }
+    if(d.specialty){ updates.push('specialty = ?'); values.push(d.specialty); }
+    if(d.hospital !== undefined){ updates.push('hospital = ?'); values.push(d.hospital||''); }
+    if(d.experienceYears !== undefined){ updates.push('experience_years = ?'); values.push(d.experienceYears); }
+    if(d.rating !== undefined){ updates.push('rating = ?'); values.push(d.rating); }
+    if(d.bio){ updates.push('bio = ?'); values.push(d.bio); }
+    if(d.location){ updates.push('location = ?'); values.push(d.location); }
+    if(updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
+    values.push(id);
+    const sql = `UPDATE doctors SET ${updates.join(', ')} WHERE id = ?`;
+    await db.run(sql, values);
+    const updated = await db.get('SELECT * FROM doctors WHERE id = ?', [id]);
+    res.json(mapDoctorRow(updated));
   }catch(err){ res.status(500).json({ error: 'Failed', details: String(err) }); }
 });
 

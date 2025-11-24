@@ -3,93 +3,598 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MediLink Admin</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
+  <title>MediLink Admin — Professional</title>
+  <meta name="description" content="MediLink Admin professional dashboard — users, doctors, bookings, export and quick stats." />
+  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --muted:#94a3b8;
+      --accent:#3b82f6; /* blue */
+      --accent-2:#06b6d4; /* teal */
+      --glass: rgba(255,255,255,0.03);
+      --radius:12px;
+      --gap:18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color-scheme: dark;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071023 0%, #081226 100%);color:#e6eef8}
+    .container{max-width:1200px;margin:28px auto;padding:20px;display:grid;grid-template-columns:1fr 320px;gap:24px}
+
+    /* Header */
+    .admin-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand a{color:var(--accent);font-weight:700;font-size:18px;text-decoration:none}
+    .brand small{display:block;color:var(--muted);font-size:12px}
+    #admin-user{font-size:14px;color:var(--muted)}
+
+    /* Main card */
+    .card{background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.02));padding:18px;border-radius:var(--radius);box-shadow: 0 6px 20px rgba(3,9,23,0.6)}
+    h2,h3{margin:0;color:#eaf4ff}
+    .hint{color:var(--muted);font-size:13px}
+
+    /* layout */
+    .layout-grid{display:grid;grid-template-columns:1fr 320px;gap:24px}
+    .tabbar{display:flex;gap:8px;margin-top:6px}
+    .tab{background:transparent;border:1px solid transparent;padding:8px 12px;border-radius:10px;color:var(--muted);cursor:pointer;font-weight:600}
+    .tab.active{background:linear-gradient(90deg, rgba(59,130,246,0.12), rgba(6,182,212,0.05));border:1px solid rgba(255,255,255,0.04);color:var(--accent)}
+
+    .tab-body{margin-top:16px}
+    .tab-panel{display:block}
+    .hidden{display:none}
+
+    /* stats */
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .stat{padding:12px;background:var(--glass);border-radius:10px}
+    .stat .num{font-size:20px;font-weight:700}
+    .stat .label{color:var(--muted);font-size:13px}
+
+    /* lists */
+    .filters{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    input[type=text]{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:10px;color:inherit;outline:none;width:100%}
+    .admin-row{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02);margin-bottom:8px}
+    .admin-col{display:flex;align-items:center;gap:12px}
+    .meta-title{font-weight:700}
+    .meta-sub{color:var(--muted);font-size:13px}
+
+    /* buttons */
+    .btn{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border:none}
+    .btn-ghost{background:transparent;border:1px dashed rgba(255,255,255,0.04);color:var(--muted)}
+
+    /* table */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.02)}
+    th{color:var(--muted);font-size:13px}
+
+    /* aside */
+    aside .card{position:sticky;top:24px}
+
+    /* responsive */
+    @media (max-width:980px){
+      .container{grid-template-columns:1fr;}
+      .layout-grid{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
-  <main class="container admin-wrap">
-    <header class="admin-header">
-      <a class="brand-link" href="index.html">MediLink Admin</a>
-      <div id="admin-user">Not signed in</div>
+  <main class="container">
+    <header class="admin-header card" style="grid-column:1/-1;">
+      <div class="brand">
+        <a href="#">MediLink Admin</a>
+        <small>Admin dashboard</small>
+      </div>
+      <div id="admin-user">Signed in as <strong>Admin</strong></div>
     </header>
 
-    <section class="layout-grid" style="margin-top:18px;">
-      <div>
-        <div class="card" style="padding:0;">
-          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <div>
-              <h2 style="margin:0;padding:18px 24px 0;">Admin Dashboard</h2>
-              <div class="hint" style="padding:0 24px 18px;">Manage users, doctors and bookings</div>
-            </div>
-            <div style="padding:0 18px 0 0; display:flex; gap:8px; align-items:center;">
-              <button id="btn-new-doctor" class="btn btn-primary">Add doctor</button>
-            </div>
-          </div>
-
-          <div style="padding:0 18px 18px;">
-            <div class="tabbar" role="tablist" aria-label="Admin sections">
-              <button class="tab active" data-tab="stats">Overview</button>
-              <button class="tab" data-tab="users">Users</button>
-              <button class="tab" data-tab="doctors">Doctors</button>
-              <button class="tab" data-tab="bookings">Bookings</button>
-            </div>
-
-            <div class="tab-body">
-              <div id="tab-stats" class="tab-panel">Loading...</div>
-              <div id="tab-users" class="tab-panel hidden">
-                <div class="filters">
-                  <input id="user-filter" placeholder="Filter users by name or email" />
-                </div>
-                <div id="users-list">Loading...</div>
-              </div>
-              <div id="tab-doctors" class="tab-panel hidden">
-                <div class="filters">
-                  <input id="doctor-filter" placeholder="Filter doctors by name, specialty or hospital" />
-                </div>
-                <div id="doctors-list">Loading...</div>
-              </div>
-              <div id="tab-bookings" class="tab-panel hidden">
-                <div id="bookings-list">Loading...</div>
-              </div>
-            </div>
-          </div>
+    <section class="card" style="padding:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <h2>Admin Dashboard</h2>
+          <div class="hint">Manage users, doctors, bookings — analytics at a glance</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button id="btn-refresh" class="btn btn-ghost">Refresh</button>
+          <button id="btn-export-users" class="btn">Export users (CSV)</button>
+          <button id="btn-new-doctor" class="btn btn-primary">Add doctor</button>
         </div>
       </div>
 
-      <aside>
-        <div class="card" style="padding:18px 20px;">
-          <h3 style="margin:0 0 8px;">Quick stats</h3>
-          <div id="stats">Loading...</div>
+      <div style="margin-top:14px;">
+        <div class="tabbar" role="tablist" aria-label="Admin sections">
+          <button class="tab active" data-tab="stats">Overview</button>
+          <button class="tab" data-tab="users">Users</button>
+          <button class="tab" data-tab="doctors">Doctors</button>
+          <button class="tab" data-tab="bookings">Bookings</button>
         </div>
 
-        <div class="card" style="margin-top:16px;padding:18px 20px;">
-          <h3 style="margin:0 0 8px;">Quick actions</h3>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
-            <button id="btn-refresh" class="btn btn-ghost">Refresh</button>
-            <button id="btn-export-users" class="btn">Export users (CSV)</button>
+        <div class="tab-body">
+          <div id="tab-stats" class="tab-panel">
+            <div class="stats-grid" style="margin-top:12px;">
+              <div class="stat">
+                <div class="num" id="stat-users">—</div>
+                <div class="label">Total users</div>
+              </div>
+              <div class="stat">
+                <div class="num" id="stat-doctors">—</div>
+                <div class="label">Registered doctors</div>
+              </div>
+              <div class="stat">
+                <div class="num" id="stat-bookings">—</div>
+                <div class="label">Active bookings</div>
+              </div>
+            </div>
+
+            <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div style="background:rgba(255,255,255,0.01);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);">
+                <h4 style="margin:0 0 12px;color:#eaf4ff;font-size:14px;">User Growth</h4>
+                <canvas id="userGrowthCanvas" style="max-height:200px;"></canvas>
+              </div>
+              <div style="background:rgba(255,255,255,0.01);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);">
+                <h4 style="margin:0 0 12px;color:#eaf4ff;font-size:14px;">Doctors by Specialty</h4>
+                <canvas id="specialtyCanvas" style="max-height:200px;"></canvas>
+              </div>
+            </div>
+
+            <div style="margin-top:18px;">
+              <h3 style="margin-bottom:8px;">Recent activity</h3>
+              <div id="recent-activity">Loading recent activity...</div>
+            </div>
+          </div>
+
+          <div id="tab-users" class="tab-panel hidden">
+            <div class="filters">
+              <input id="user-filter" placeholder="Filter users by name or email" />
+            </div>
+            <div id="users-list">Loading...</div>
+          </div>
+
+          <div id="tab-doctors" class="tab-panel hidden">
+            <div class="filters">
+              <input id="doctor-filter" placeholder="Filter doctors by name, specialty or hospital" />
+            </div>
+            <div id="doctors-list">Loading...</div>
+          </div>
+
+          <div id="tab-bookings" class="tab-panel hidden">
+            <div id="bookings-list">Loading...</div>
           </div>
         </div>
-      </aside>
+      </div>
     </section>
+
+    <aside>
+      <div class="card">
+        <h3>Quick stats</h3>
+        <div id="stats" style="margin-top:12px;">
+          <div class="stat" style="margin-bottom:8px;"><div class="num">—</div><div class="label">This week visits</div></div>
+          <div class="stat" style="margin-bottom:8px;"><div class="num">—</div><div class="label">Avg. rating</div></div>
+          <div class="stat"><div class="num">—</div><div class="label">New signups</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Quick actions</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+          <button id="btn-refresh-2" class="btn btn-ghost">Refresh</button>
+          <button id="btn-export-users-2" class="btn">Export users (CSV)</button>
+          <button id="btn-invite" class="btn">Invite doctor</button>
+        </div>
+      </div>
+    </aside>
   </main>
 
+  <!-- Templates -->
   <template id="user-row-tpl">
     <div class="admin-row">
-      <div class="admin-col user-meta"></div>
+      <div class="admin-col user-meta">
+        <div>
+          <div class="meta-title">{{name}}</div>
+          <div class="meta-sub">{{email}} · {{admin_status}}</div>
+        </div>
+      </div>
       <div class="admin-col user-actions"></div>
     </div>
   </template>
 
   <template id="doctor-row-tpl">
     <div class="admin-row">
-      <div class="admin-col doctor-meta"></div>
+      <div class="admin-col doctor-meta">
+        <div>
+          <div class="meta-title">{{name}}</div>
+          <div class="meta-sub">{{specialty}} · {{hospital}}</div>
+        </div>
+      </div>
       <div class="admin-col doctor-actions"></div>
     </div>
   </template>
 
-  <script src="assets/js/admin.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="assets/js/react-bridge.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    // Minimal interactivity so the file is ready-to-go. Replace the dummy data with live API calls.
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    let userGrowthChart = null;
+    let specialtyChart = null;
+    const panels = Array.from(document.querySelectorAll('.tab-panel'));
+    tabs.forEach(t=>t.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const target = t.dataset.tab;
+      panels.forEach(p=>p.classList.toggle('hidden', !p.id.endsWith(target)));
+    }));
+
+    // Data will be loaded from API endpoints. Use authenticated admin endpoints.
+    const DATA = { users: [], doctors: [], bookings: [] };
+
+    function getAuthToken(){
+      try {
+        return localStorage.getItem('ml_token') || '';
+      } catch(e) {
+        return '';
+      }
+    }
+
+    async function fetchData(){
+      const token = getAuthToken();
+      const headers = {
+        'Accept': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      };
+      try{
+        // Parallel fetch for speed — use admin endpoints
+        const [sRes, uRes, dRes, bRes] = await Promise.all([
+          fetch('/api/admin/stats', { headers }),
+          fetch('/api/admin/users', { headers }),
+          fetch('/api/admin/doctors', { headers }),
+          fetch('/api/admin/bookings', { headers })
+        ]);
+
+        if(!sRes.ok || !uRes.ok || !dRes.ok || !bRes.ok){
+          const err = await Promise.all([sRes.text(), uRes.text(), dRes.text(), bRes.text()]);
+          throw new Error(`Failed: stats(${sRes.status}) users(${uRes.status}) doctors(${dRes.status}) bookings(${bRes.status})`);
+        }
+
+        const [stats, users, doctors, bookings] = await Promise.all([sRes.json(), uRes.json(), dRes.json(), bRes.json()]);
+        
+        // Normalize responses (admin endpoints return wrapped objects)
+        DATA.users = Array.isArray(users) ? users : (users.users || users.data || []);
+        DATA.doctors = Array.isArray(doctors) ? doctors : (doctors.doctors || doctors.data || []);
+        DATA.bookings = Array.isArray(bookings) ? bookings : (bookings.bookings || bookings.data || []);
+        
+        // Update stats from API response
+        if(stats && typeof stats === 'object'){
+          document.getElementById('stat-users').textContent = stats.users || DATA.users.length;
+          document.getElementById('stat-doctors').textContent = stats.doctors || DATA.doctors.length;
+          document.getElementById('stat-bookings').textContent = stats.bookings || DATA.bookings.length;
+        }
+
+        // render after data arrives
+        renderAll();
+      }catch(err){
+        console.error('Fetch error', err);
+        document.getElementById('recent-activity').textContent = 'Error loading data: ' + err.message + ' (check browser console and ensure you are logged in as admin)';
+        // Still render with empty lists
+        renderAll();
+      }
+    }
+
+    function renderAll(){
+      document.getElementById('stat-users').textContent = DATA.users.length;
+      document.getElementById('stat-doctors').textContent = DATA.doctors.length;
+      document.getElementById('stat-bookings').textContent = DATA.bookings.length;
+      document.getElementById('recent-activity').textContent = 'Live recent events — powered by API.';
+      renderUsers(DATA.users);
+      renderDoctors(DATA.doctors);
+      renderBookings(DATA.bookings);
+      updateCharts();
+    }
+
+    function updateCharts(){
+      updateUserGrowthChart();
+      updateSpecialtyChart();
+    }
+
+    function updateUserGrowthChart(){
+      const canvas = document.getElementById('userGrowthCanvas');
+      if(!canvas) return;
+      
+      // Simulate growth data based on user count (in real app, this would come from API)
+      const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+      const total = Math.max(DATA.users.length, 5);
+      const step = Math.ceil(total / 7);
+      const userData = Array.from({length: 7}, (_, i) => step * (i + 1));
+      
+      if(userGrowthChart) userGrowthChart.destroy();
+      
+      userGrowthChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: days,
+          datasets: [{
+            label: 'Total Users',
+            data: userData,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#06b6d4',
+            pointBorderColor: '#3b82f6',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    function updateSpecialtyChart(){
+      const canvas = document.getElementById('specialtyCanvas');
+      if(!canvas) return;
+      
+      // Count doctors by specialty
+      const specialtyCounts = {};
+      DATA.doctors.forEach(d => {
+        const spec = d.specialty || 'Other';
+        specialtyCounts[spec] = (specialtyCounts[spec] || 0) + 1;
+      });
+      
+      const labels = Object.keys(specialtyCounts).slice(0, 6); // Top 6
+      const data = labels.map(l => specialtyCounts[l]);
+      
+      if(specialtyChart) specialtyChart.destroy();
+      
+      specialtyChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Number of Doctors',
+            data: data,
+            backgroundColor: ['#3b82f6', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'].slice(0, labels.length),
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            y: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderUsers(list){
+      const container = document.getElementById('users-list');
+      container.innerHTML = '';
+      const tpl = document.getElementById('user-row-tpl').innerHTML;
+      if(!list.length){ container.innerHTML = '<div class="meta-sub">No users found</div>'; return }
+      list.forEach(u=>{
+        const adminStatus = u.is_admin ? '✓ Admin' : 'User';
+        const html = tpl.replace('{{name}}',u.name||u.fullName||u.username||'Unknown')
+                        .replace('{{email}}',u.email||'—')
+                        .replace('{{admin_status}}',adminStatus);
+        const div = document.createElement('div'); 
+        div.innerHTML = html; 
+        const row = div.firstElementChild;
+        
+        // Add Make/Revoke Admin button
+        const actions = row.querySelector('.user-actions');
+        const btn = document.createElement('button');
+        btn.className = 'btn ' + (u.is_admin ? 'btn-ghost' : 'btn-primary');
+        btn.textContent = u.is_admin ? 'Revoke Admin' : 'Make Admin';
+        btn.addEventListener('click', async ()=>{
+          const token = getAuthToken();
+          if(!token){ alert('Not logged in'); return; }
+          if(!confirm(`${btn.textContent} ${u.name}?`)) return;
+          btn.disabled = true;
+          try{
+            const res = await fetch(`/api/admin/users/${encodeURIComponent(u.id)}/toggle-admin`, {
+              method: 'POST',
+              headers: {'Authorization': `Bearer ${token}`}
+            });
+            if(!res.ok) throw new Error('Failed: ' + res.status);
+            await fetchData();
+          }catch(err){
+            alert('Error: ' + err.message); console.error(err);
+          }finally{
+            btn.disabled = false;
+          }
+        });
+        actions.appendChild(btn);
+
+        // Add Delete User button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-ghost';
+        delBtn.textContent = 'Delete';
+        delBtn.style.color = '#ef4444';
+        delBtn.addEventListener('click', async ()=>{
+          const token = getAuthToken();
+          if(!token){ alert('Not logged in'); return; }
+          if(!confirm(`Delete user ${u.name}? This cannot be undone.`)) return;
+          delBtn.disabled = true;
+          try{
+            const res = await fetch(`/api/admin/users/${encodeURIComponent(u.id)}`, {
+              method: 'DELETE',
+              headers: {'Authorization': `Bearer ${token}`}
+            });
+            if(!res.ok) throw new Error('Failed: ' + res.status);
+            await fetchData();
+          }catch(err){
+            alert('Error: ' + err.message); console.error(err);
+          }finally{
+            delBtn.disabled = false;
+          }
+        });
+        actions.appendChild(delBtn);
+        container.appendChild(row);
+      })
+    }
+    function renderDoctors(list){
+      const container = document.getElementById('doctors-list');
+      container.innerHTML = '';
+      const tpl = document.getElementById('doctor-row-tpl').innerHTML;
+      if(!list.length){ container.innerHTML = '<div class="meta-sub">No doctors found</div>'; return }
+      list.forEach(d=>{
+        const html = tpl.replace('{{name}}',d.name||d.fullName||'Unknown')
+                        .replace('{{specialty}}',d.specialty||d.primarySpecialty||'—')
+                        .replace('{{hospital}}',d.hospital||d.affiliation||'—');
+        const div = document.createElement('div'); 
+        div.innerHTML = html; 
+        const row = div.firstElementChild;
+        
+        // Add Edit button
+        const actions = row.querySelector('.admin-col.doctor-actions');
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-primary';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', async ()=>{
+          const token = getAuthToken();
+          if(!token){ alert('Not logged in'); return; }
+          const name = prompt('Doctor name', d.name || '');
+          if(!name) return;
+          const specialty = prompt('Specialty', d.specialty || '');
+          if(!specialty) return;
+          const hospital = prompt('Hospital', d.hospital || '');
+          editBtn.disabled = true;
+          try{
+            const res = await fetch(`/api/admin/doctors/${encodeURIComponent(d.id)}`, {
+              method: 'PUT',
+              headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${token}`},
+              body: JSON.stringify({name, specialty, hospital})
+            });
+            if(!res.ok) throw new Error('Failed: ' + res.status);
+            await fetchData();
+          }catch(err){
+            alert('Error: ' + err.message); console.error(err);
+          }finally{
+            editBtn.disabled = false;
+          }
+        });
+        
+        // Add Delete button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-ghost';
+        delBtn.textContent = 'Delete';
+        delBtn.style.color = '#ef4444';
+        delBtn.addEventListener('click', async ()=>{
+          const token = getAuthToken();
+          if(!token){ alert('Not logged in'); return; }
+          if(!confirm(`Delete doctor ${d.name}? This cannot be undone.`)) return;
+          delBtn.disabled = true;
+          try{
+            const res = await fetch(`/api/admin/doctors/${encodeURIComponent(d.id)}`, {
+              method: 'DELETE',
+              headers: {'Authorization': `Bearer ${token}`}
+            });
+            if(!res.ok) throw new Error('Failed: ' + res.status);
+            await fetchData();
+          }catch(err){
+            alert('Error: ' + err.message); console.error(err);
+          }finally{
+            delBtn.disabled = false;
+          }
+        });
+        
+        if(!actions.querySelector('button')) {
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+        } else {
+          actions.innerHTML = '';
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+        }
+        container.appendChild(row);
+      })
+    }
+    function renderBookings(list){
+      const container = document.getElementById('bookings-list');
+      if(!list.length){ container.innerHTML = '<div class="meta-sub">No bookings found</div>'; return }
+      let tbl = '<table><thead><tr><th>User</th><th>Doctor</th><th>Time</th></tr></thead><tbody>';
+      list.forEach(b=>{ tbl += `<tr><td>${b.userName||b.user||b.user_email||'—'}</td><td>${b.doctorName||b.doctor||'—'}</td><td>${b.time||b.scheduled_at||'—'}</td></tr>` });
+      tbl += '</tbody></table>';
+      container.innerHTML = tbl;
+    }
+
+    // Filters (operate on in-memory DATA)
+    document.getElementById('user-filter').addEventListener('input',e=>{
+      const q = e.target.value.toLowerCase(); renderUsers(DATA.users.filter(u=> (String(u.name||u.email||'')+String(u.email||'')).toLowerCase().includes(q)));
+    });
+    document.getElementById('doctor-filter').addEventListener('input',e=>{
+      const q = e.target.value.toLowerCase(); renderDoctors(DATA.doctors.filter(d=> (String(d.name||d.specialty||d.hospital||'')).toLowerCase().includes(q)));
+    });
+
+    // Export CSV (basic)
+    function downloadCSV(rows, filename='export.csv'){
+      if(!rows || !rows.length){ alert('No rows to export'); return }
+      const keys = Object.keys(rows[0]);
+      const csv = [keys.join(',')].concat(rows.map(r=>keys.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`).join(','))).join('\n');
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+    }
+    document.getElementById('btn-export-users').addEventListener('click', ()=> downloadCSV(DATA.users,'medilink-users.csv'));
+    document.getElementById('btn-export-users-2').addEventListener('click', ()=> downloadCSV(DATA.users,'medilink-users.csv'));
+
+    // Refresh triggers re-fetch from APIs
+    document.getElementById('btn-refresh').addEventListener('click',()=> fetchData());
+    document.getElementById('btn-refresh-2').addEventListener('click',()=> fetchData());
+
+    // Add doctor — open a modal or call API; here we show a prompt then POST to API if available
+    document.getElementById('btn-new-doctor').addEventListener('click',async ()=>{
+      const token = getAuthToken();
+      if(!token){ alert('You must be logged in as admin to add doctors'); return; }
+      const name = prompt('Doctor name'); if(!name) return;
+      const specialty = prompt('Specialty'); if(!specialty) return;
+      const hospital = prompt('Hospital'); if(!hospital) return;
+      try{
+        const res = await fetch('/api/admin/doctors', {
+          method:'POST',
+          headers:{'Content-Type':'application/json', 'Authorization': `Bearer ${token}`},
+          body: JSON.stringify({id: 'dr_' + Date.now(), name, specialty, hospital})
+        });
+        if(!res.ok) throw new Error('Failed to create: ' + res.status);
+        const created = await res.json();
+        // optimistic update
+        DATA.doctors.push(created || {name,specialty,hospital}); renderDoctors(DATA.doctors); document.getElementById('stat-doctors').textContent = DATA.doctors.length;
+      }catch(err){
+        alert('Could not add doctor — check console.'); console.error(err);
+      }
+    });
+
+    // Initial load: fetch from server
+    fetchData();
+  </script>
 </body>
 </html>

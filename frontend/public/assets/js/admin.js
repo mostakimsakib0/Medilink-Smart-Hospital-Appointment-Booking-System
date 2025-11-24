@@ -74,14 +74,16 @@
     try{
       const data = await api('/api/admin/doctors');
       doctorsList.innerHTML = '';
+      // normalize response: allow either array or object { doctors: [...] }
+      const list = Array.isArray(data) ? data : (data.doctors || data.data || []);
       const filter = (doctorFilterInput?.value||'').toLowerCase().trim();
-      const toShow = data.filter(d => {
+      const toShow = list.filter(d => {
         if(!filter) return true;
-        return (d.name||'').toLowerCase().includes(filter) || (d.specialty||'').toLowerCase().includes(filter) || (d.hospital||'').toLowerCase().includes(filter);
+        return (String(d.name||'')).toLowerCase().includes(filter) || (String(d.specialty||'')).toLowerCase().includes(filter) || (String(d.hospital||'')).toLowerCase().includes(filter);
       });
       toShow.forEach(d => {
         const row = document.getElementById('doctor-row-tpl').content.cloneNode(true);
-        row.querySelector('.doctor-meta').textContent = `${d.name} — ${d.specialty} — ${d.hospital}`;
+        row.querySelector('.doctor-meta').textContent = `${d.name || '-'} — ${d.specialty || '-'} — ${d.hospital || '-'}`;
         const actions = row.querySelector('.doctor-actions');
         const del = document.createElement('button');
         del.className = 'btn btn-ghost';
@@ -100,10 +102,11 @@
     try{
       const data = await api('/api/admin/bookings');
       bookingsList.innerHTML = '';
-      data.bookings.forEach(b => {
+      const list = Array.isArray(data) ? data : (data.bookings || data.data || []);
+      list.forEach(b => {
         const el = document.createElement('div');
         el.className = 'admin-row';
-        el.textContent = `#${b.id} User:${b.user_id} Doctor:${b.doctor_id} ${b.date} ${b.time} — ${b.reason||''}`;
+        el.textContent = `#${b.id || '-'} User:${b.user_id || b.user || '-'} Doctor:${b.doctor_id || b.doctor || '-'} ${b.date || b.scheduled_at || '-'} ${b.time || ''} — ${b.reason||''}`;
         bookingsList.appendChild(el);
       });
     }catch(err){ bookingsList.textContent = 'Failed to load bookings'; }
